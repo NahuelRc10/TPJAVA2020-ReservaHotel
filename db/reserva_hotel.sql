@@ -3,6 +3,19 @@ CREATE DATABASE `Hotel`;
 USE `Hotel`;
 
 ###
+###  Tabla Roles
+###
+
+DROP TABLE IF EXISTS `Hotel`.`Roles`;
+CREATE TABLE `Hotel`.`Roles` (   
+    `id` BIGINT NOT NULL AUTO_INCREMENT,   
+    `nombreRol` VARCHAR(45) NOT NULL,   
+    `fechaCreacion` TIMESTAMP, 
+    `fechaEliminacion` TIMESTAMP, 
+    PRIMARY KEY (`id`))   
+ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+
+###
 ### Tabla Paises
 ###
 
@@ -97,7 +110,12 @@ CREATE TABLE `Hotel`.`Personas` (
     `genero` VARCHAR(45),
     `fechaCreacion` TIMESTAMP, 
     `fechaEliminacion` TIMESTAMP,
+    `sueldoMensual` FLOAT DEFAULT NULL,
+    `descripcion` VARCHAR(45) DEFAULT NULL,
+    `legajo` BIGINT DEFAULT NULL,
+    `tipoPersona` VARCHAR(45),
     `idDomicilio` BIGINT NOT NULL,
+    `idRol` BIGINT NOT NULL,
     PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -107,6 +125,14 @@ REFERENCES `Domicilios`(`id`)
 ON DELETE CASCADE
 ON UPDATE CASCADE;
 
+-- FK a la tabla Roles
+ALTER TABLE `Personas` ADD CONSTRAINT `Rol_FK` FOREIGN KEY(`idRol`) 
+REFERENCES `Roles`(`id`)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+
+/* Pasados a la superclase, modificadas las FKs
 ##
 ## Tabla Empleados
 ##
@@ -129,6 +155,7 @@ REFERENCES `Personas`(`id`)
 ON DELETE CASCADE
 ON UPDATE CASCADE;
 
+
 ##
 ## Tabla Clientes
 ##
@@ -146,12 +173,13 @@ ALTER TABLE `Clientes` ADD CONSTRAINT `Cliente_Persona_FK` FOREIGN KEY(`idPerson
 REFERENCES `Personas`(`id`)
 ON DELETE CASCADE
 ON UPDATE CASCADE;
+*/
 
 ##
 ## Tabla Tarjetas
 ##
 
-DROP TABLE IF EXISTS `Hotel`.`Tarjetas`;
+DROP TABLE IF EXISTS `Hotel`.`Tarjetas`; 
 CREATE TABLE `Hotel`.`Tarjetas` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
     `numeroTarjeta` BIGINT NOT NULL,
@@ -160,15 +188,16 @@ CREATE TABLE `Hotel`.`Tarjetas` (
     `monto` FLOAT,
     `fechaCreacion` TIMESTAMP, 
     `fechaEliminacion` TIMESTAMP,
-    `idCliente` BIGINT NOT NULL,
+    `idPersona` BIGINT NOT NULL,
     PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- FK a la tabla Clientes
-ALTER TABLE `Tarjetas` ADD CONSTRAINT `Cliente_FK` FOREIGN KEY(`idCliente`) 
-REFERENCES `Clientes`(`id`)
+-- FK a la tabla Personas
+ALTER TABLE `Tarjetas` ADD CONSTRAINT `Tarjeta_Persona_FK` FOREIGN KEY(`idPersona`) 
+REFERENCES `Personas`(`id`)
 ON DELETE CASCADE
 ON UPDATE CASCADE;
+
 
 ##
 ## Tabla Facturas
@@ -266,6 +295,22 @@ CREATE TABLE `Hotel`.`Salones` (
     PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+/* VER SI CORRESPONDE, En alquiler, En reparación, Disponible, etc.
+##
+## Tabla EstadoHabitacionesSalones
+##
+
+DROP TABLE IF EXISTS `Hotel`.`EstadoHabitacionesSalones`;
+CREATE TABLE `Hotel`.`EstadoHabitacionesSalones` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `descripcion` VARCHAR(45),
+    `fechaCreacion` TIMESTAMP, 
+    `fechaEliminacion` TIMESTAMP,
+    PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+*/
+
 ##
 ## Tabla EstadoReservas
 ##
@@ -293,7 +338,7 @@ CREATE TABLE `Hotel`.`Reservas` (
     `fechaSalida` DATETIME DEFAULT NULL,
     `fechaCreacion` TIMESTAMP, 
     `fechaEliminacion` TIMESTAMP,
-    `idCliente` BIGINT NOT NULL,
+    `idPersona` BIGINT NOT NULL,
     `idEstadoReserva` BIGINT NOT NULL,
     `idHabitacion` BIGINT,
     `idSalon` BIGINT,
@@ -301,8 +346,8 @@ CREATE TABLE `Hotel`.`Reservas` (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- FK a la tabla Clientes
-ALTER TABLE `Reservas` ADD CONSTRAINT `Reserva_Cliente_FK` FOREIGN KEY(`idCliente`) 
-REFERENCES `Clientes`(`id`)
+ALTER TABLE `Reservas` ADD CONSTRAINT `Reserva_Persona_FK` FOREIGN KEY(`idPersona`) 
+REFERENCES `Personas`(`id`)
 ON DELETE CASCADE
 ON UPDATE CASCADE;
 
